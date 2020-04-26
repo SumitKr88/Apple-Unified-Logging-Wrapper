@@ -1,8 +1,10 @@
 # Apple-Unified-Logging-Wrapper
 Wrapper class for implementing Apple Unified Logging mechanism 
 
-`Usage sample :`
+Usage Examples :
 
 `Log.debugLog("Test %@", log: .network, "value")`
 
-`Log.debugLog("Test")`
+`Log.defaultLog("Test")`
+
+`Log.defaultLog("Test %@", log: .network, "value")`
