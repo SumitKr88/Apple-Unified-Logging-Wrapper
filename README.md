@@ -1,2 +1,10 @@
 # Apple-Unified-Logging-Wrapper
-Wrapper for implementing Apple Unified Logging mechanism 
+Wrapper class for implementing Apple Unified Logging mechanism 
+
+/// ************************************************
+///
+/// `Usage sample :`
+/// `Log.debugLog("Test %@", log: .network, "value")`
+/// `Log.debugLog("Test")`
+///
+/// ************************************************
