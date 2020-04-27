@@ -12,89 +12,119 @@ import os.log
 /// ************************************************
 ///
 /// `Usage sample :`
-/// `Log.debugLog("Test %@", log: .network, "value")`
+/// `Log.debugLog("Test: \(value)", log: .network)`
 /// `Log.debugLog("Test")`
+///
+///  `Output sample:`
+///  `[UI] [Main] Test: value`
+///  `[UI] [Main] Test`
 ///
 /// ************************************************
 
 /// Wrapper class for Unified Logging System
-class Log {
+class Log: NSObject {
     
     /// Function to print `DEBUG` logs
     /// - Parameters:
     ///   - message: A constant string message which needs to be logged
     ///   - log: A custom OSLog object type. If unspecified default is  `ui`
-    ///   - args: Don't specify `args` if  message is a constant string.
-    ///   When its a format string pass on the expected number of arguments in the order that they appear in the string
     ///
-    public static func debugLog(_ message: StaticString,
-                                log: OSLog? = .ui,
-                                _ args: CVarArg...) {
-        os_log(message, log: log ?? .ui, type: .debug, args)
+    public static func debugLog(_ message: String,
+                                log: OSLog? = .ui) {
+        Log.log(message, .debug, log: log ?? .ui)
     }
     
     /// Function to print log with `DEFAULT` mode
     /// - Parameters:
     ///   - message: A constant string message which needs to be logged
     ///   - log: A custom OSLog object type. If unspecified default is  `ui`
-    ///   - args: Don't specify `args` if  message is a constant string.
-    ///   When its a format string pass on the expected number of arguments in the order that they appear in the string
     ///
-    public static func defaultLog(_ message: StaticString,
-                                  log: OSLog? = .ui,
-                                  _ args: CVarArg...) {
-        os_log(message, log: log ?? .ui, type: .default, args)
+    public static func defaultLog(_ message: String,
+                                  log: OSLog? = .ui) {
+        Log.log(message, .default, log: log ?? .ui)
     }
     
     /// Function to print `ERROR` logs
     /// - Parameters:
     ///   - message: A constant string message which needs to be logged
     ///   - log: A custom OSLog object type. If unspecified default is  `ui`
-    ///   - args: Don't specify `args` if  message is a constant string.
-    ///   When its a format string pass on the expected number of arguments in the order that they appear in the string
     ///
-    public static func errorLog(_ message: StaticString,
-                                log: OSLog? = .ui,
-                                _ args: CVarArg...) {
-        os_log(message, log: log ?? .ui, type: .error, args)
+    public static func errorLog(_ message: String,
+                                log: OSLog? = .ui) {
+        Log.log(message, .error, log: log ?? .ui)
     }
     
     /// Function to print `INFO` logs
     /// - Parameters:
     ///   - message: A constant string message which needs to be logged
     ///   - log: A custom OSLog object type. If unspecified default is  `ui`
-    ///   - args: Don't specify `args` if  message is a constant string.
-    ///   When its a format string pass on the expected number of arguments in the order that they appear in the string
     ///
-    public static func infoLog(_ message: StaticString,
-                               log: OSLog? = .ui,
-                               _ args: CVarArg...) {
-        os_log(message, log: log ?? .ui, type: .info, args)
+    public static func infoLog(_ message: String,
+                               log: OSLog? = .ui) {
+        Log.log(message, .info, log: log ?? .ui)
     }
     
     /// Function to print `FAULT` logs
     /// - Parameters:
     ///   - message: A constant string message which needs to be logged
     ///   - log: A custom OSLog object type. If unspecified default is  `ui`
-    ///   - args: Don't specify `args` if  message is a constant string.
-    ///   When its a format string pass on the expected number of arguments in the order that they appear in the string
     ///
-    public static func faultLog(_ message: StaticString,
-                                log: OSLog? = .ui,
-                                _ args: CVarArg...) {
-        os_log(message, log: log ?? .ui, type: .fault, args)
+    public static func faultLog(_ message: String,
+                                log: OSLog? = .ui) {
+        Log.log(message, .fault, log: log ?? .ui)
+    }
+    
+}
+
+extension Log {
+    
+    /// This is to get current thread name
+    /// - Returns: Thread name
+    ///
+    private static var currentThread: String {
+        if Thread.isMainThread {
+            return "Main"
+        } else {
+            if let threadName = Thread.current.name, !threadName.isEmpty {
+                return"\(threadName)"
+            } else if let queueName = String(validatingUTF8: __dispatch_queue_get_label(nil)), !queueName.isEmpty {
+                return"\(queueName)"
+            } else {
+                return String(format: "%p", Thread.current)
+            }
+        }
+    }
+    
+    /// Function to log message on `os_log` as per the log type with current thread info
+    /// - Parameters:
+    ///   - message: A constant string message which needs to be logged
+    ///   - type: A OSLogType type. Default is  `default`. Log type level, for example, .debug, .info, .error etc
+    ///   - log: A custom OSLog object type. If unspecified default is  `ui`
+    ///
+    public static func log(_ message: String,
+                           _ type: OSLogType = .default,
+                           log: OSLog = .ui) {
+        
+        /// Logging current thread info only in debug mode
+        if type == .debug {
+            os_log("[%@] %@", log: log, type: type, currentThread, message)
+        } else {
+            os_log("%@", log: log, type: type, message)
+        }
     }
 }
 
 /// Adding different `categories` and `subsystems`
+/// Creates OSLog object which describes log subsystem and category
+
 extension OSLog {
     
     private static var subsystem = Bundle.main.bundleIdentifier!
     
-    /// Categorizing all the logs related to `UI`
+    /// Categorizing all the logs related to `User Experience Layer`
     static let ui = OSLog(subsystem: subsystem, category: "UI")
     
-    /// Categorizing all the logs related to `Network`
+    /// Categorizing all the logs related to `Network layer`
     static let network = OSLog(subsystem: subsystem, category: "Network")
     
     /// Categorizing all the logs related to `Authentication`
