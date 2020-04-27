@@ -15,9 +15,13 @@ import os.log
 /// `Log.debugLog("Test: \(value)", log: .network)`
 /// `Log.debugLog("Test")`
 ///
-///  `Output sample:`
-///  `[UI] [Main] Test: value`
+///  `Output sample [DEBUG]:`
+///  `[Network] [Main] Test: value`
 ///  `[UI] [Main] Test`
+///
+/// `Output sample [OTHER LOG LEVELS]:`
+///  `[Network] Test: value`
+///  `[UI] Test`
 ///
 /// ************************************************
 
